@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loading Screen</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Righteous&family=Russo+One&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* --- IMPORT FONT LOKAL --- */
+      @font-face {
+        font-family: "Project Note";
+        src: url("Project Note.otf") format("opentype");
+      }
+      @font-face {
+        font-family: "Clavasta";
+        src: url("Clavasta.otf") format("opentype");
+      }
+      @font-face {
+        font-family: "Make Choco";
+        src: url("Make Choco.otf") format("opentype");
+      }
+
+      /* PONDASI AWAL - TIDAK DIUBAH */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body,
+      html {
+        height: 100%;
+        width: 100%;
+        font-family: "Righteous", sans-serif;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .page-container {
+        height: 100vh;
+        width: 100vw;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .bg-image {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+        z-index: 0;
+      }
+
+      .cat-gif {
+        position: absolute;
+        width: 170px;
+        bottom: 5%;
+        right: 8%;
+        z-index: 2;
+      }
+
+      #intro-text {
+        position: absolute;
+        color: white;
+        font-size: 2rem;
+        z-index: 2;
+      }
+
+      /* --- WRAPPER KONTEN & PANEL GLASSMORPHISM --- */
+      #content-wrapper {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+      }
+
+      #main-panel {
+        display: flex;
+        flex-direction: row;
+        width: 85%;
+        max-width: 800px;
+        height: 320px; /* DIPERKECIL agar tidak mentok ke atas */
+        background: rgba(255, 255, 255, 0.25);
+        border: 4px solid rgba(255, 255, 255, 0.6);
+        border-radius: 25px;
+        backdrop-filter: blur(8px);
+        margin-bottom: 30px; /* Jarak antara panel dengan loading bar diatur ulang */
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Layout Kiri (Karakter) */
+      .panel-left {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        position: relative;
+      }
+
+      .panel-left img {
+        max-height: 110%;
+        max-width: 100%;
+        object-fit: contain;
+        position: absolute;
+        bottom: -10px;
+      }
+
+      /* Layout Kanan (Penjelasan) */
+      .panel-right {
+        flex: 1.2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding-left: 20px;
+      }
+
+      .char-title {
+        font-size: 2.5rem;
+        color: white;
+        text-decoration: underline;
+        text-underline-offset: 8px;
+        text-decoration-thickness: 4px;
+        position: relative;
+        z-index: 1;
+        margin-bottom: 25px;
+        margin-left: 10px;
+      }
+
+      .char-title::before {
+        content: "";
+        position: absolute;
+        background: #3498db;
+        width: 60%;
+        height: 100%;
+        right: -15px;
+        top: 2px;
+        z-index: -1;
+        transform: skewX(-15deg);
+      }
+
+      .char-desc-img {
+        max-width: 90%;
+        object-fit: contain;
+      }
+
+      /* Animasi Transisi Karakter */
+      .anim-element {
+        transition:
+          opacity 0.5s ease-in-out,
+          transform 0.5s ease-in-out;
+      }
+      .fade-out {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      /* --- LOADING BAR & TEXT - TATA LETAK BARU --- */
+      #loading-screen {
+        text-align: left; /* Teks rata kiri */
+        width: 80%;
+        max-width: 700px; /* Diperlebar sedikit agar bar lebih panjang menyesuaikan panel */
+        color: white;
+      }
+
+      .loading-header {
+        display: flex;
+        justify-content: flex-start; /* Menyusun elemen di kiri */
+        align-items: flex-end; /* Supaya teks loading dan persen sejajar di bawah */
+        gap: 15px; /* Jarak antara Loading... dan angka persen */
+        margin-bottom: 8px;
+        height: 40px; /* Mencegah naik turun saat ganti font */
+      }
+
+      #loading-text {
+        font-size: 2.2rem;
+        line-height: 1;
+      }
+
+      .loading-text-1 {
+        font-family: "Project Note", sans-serif;
+      }
+      .loading-text-2 {
+        font-family: "Clavasta", sans-serif;
+      }
+      .loading-text-3 {
+        font-family: "Make Choco", sans-serif;
+      }
+
+      .percentage-text {
+        font-size: 1.8rem;
+        font-family: "Russo One", sans-serif;
+        line-height: 1;
+        color: #f1c40f; /* Diberi sedikit warna kuning agar lebih estetik (opsional) */
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 25px;
+        background: #002244;
+        border: 3px solid #fff;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
+        transition: width 0.3s ease;
+      }
+
+      /* PONDASI ANIMASI 3 BLOK - TIDAK DIUBAH */
+      .page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        z-index: 9999;
+        pointer-events: none;
+      }
+
+      .page-transition .block {
+        flex: 1;
+        height: 100%;
+        background-color: #222;
+        transform-origin: left;
+        transform: scaleX(0);
+        transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+      }
+
+      .page-transition.active .block {
+        transform: scaleX(1);
+      }
+      .page-transition.active .block:nth-child(1) {
+        transition-delay: 0s;
+      }
+      .page-transition.active .block:nth-child(2) {
+        transition-delay: 0.15s;
+      }
+      .page-transition.active .block:nth-child(3) {
+        transition-delay: 0.3s;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="page-transition" class="page-transition">
+      <div class="block"></div>
+      <div class="block"></div>
+      <div class="block"></div>
+    </div>
+
+    <div class="page-container">
+      <img src="HalamanLoading.png" class="bg-image" />
+
+      <div id="intro-text">Wait for a minute...</div>
+
+      <div id="content-wrapper">
+        <div id="main-panel">
+          <div class="panel-left">
+            <img src="Tikaxkine.png" id="display-char" class="anim-element" />
+          </div>
+          <div class="panel-right">
+            <div id="display-title" class="char-title anim-element">
+              The Motivator
+            </div>
+            <img
+              src="Themotivator.png"
+              id="display-desc"
+              class="char-desc-img anim-element"
+            />
+          </div>
+        </div>
+
+        <div id="loading-screen">
+          <div class="loading-header">
+            <div id="loading-text" class="loading-text-1">Loading...</div>
+            <div id="percentage-label" class="percentage-text">0%</div>
+          </div>
+
+          <div class="progress-bar">
+            <div id="progress-fill-bar" class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <img src="kucinguiia.gif" class="cat-gif" />
+    </div>
+
+    <script>
+      // --- LOGIKA Animasi Karakter ---
+      const characterData = [
+        {
+          charImg: "Tikaxkine.png",
+          title: "The Motivator",
+          descImg: "Themotivator.png",
+        },
+        {
+          charImg: "Kinextika.png",
+          title: "The Designer",
+          descImg: "Thedesigner.png",
+        },
+      ];
+
+      let currentCharIndex = 0;
+      let charAnimInterval;
+
+      function startCharacterSwap() {
+        // WAKTU DIUBAH MENJADI 5 DETIK (5000ms)
+        charAnimInterval = setInterval(() => {
+          const imgChar = document.getElementById("display-char");
+          const txtTitle = document.getElementById("display-title");
+          const imgDesc = document.getElementById("display-desc");
+
+          imgChar.classList.add("fade-out");
+          txtTitle.classList.add("fade-out");
+          imgDesc.classList.add("fade-out");
+
+          setTimeout(() => {
+            currentCharIndex = (currentCharIndex + 1) % characterData.length;
+            const nextChar = characterData[currentCharIndex];
+
+            imgChar.src = nextChar.charImg;
+            txtTitle.innerText = nextChar.title;
+            imgDesc.src = nextChar.descImg;
+
+            imgChar.classList.remove("fade-out");
+            txtTitle.classList.remove("fade-out");
+            imgDesc.classList.remove("fade-out");
+          }, 500);
+        }, 5000);
+      }
+
+      // --- LOGIKA Loading & Font ---
+      const stages = [5, 10, 20, 25, 30, 40, 45, 50, 60, 70, 80, 85, 100];
+      let currentStage = 0;
+
+      const loadingFonts = [
+        "loading-text-1",
+        "loading-text-2",
+        "loading-text-3",
+      ];
+
+      let fontIndex = 0;
+      let fontInterval;
+
+      function startFontAnimation() {
+        const text = document.getElementById("loading-text");
+        fontInterval = setInterval(() => {
+          loadingFonts.forEach((cls) => text.classList.remove(cls));
+          text.classList.add(loadingFonts[fontIndex]);
+          fontIndex = (fontIndex + 1) % loadingFonts.length;
+        }, 1000);
+      }
+
+      function startLoading() {
+        document.getElementById("intro-text").style.display = "none";
+        document.getElementById("content-wrapper").style.display = "flex";
+
+        startFontAnimation();
+        startCharacterSwap();
+
+        const interval = setInterval(() => {
+          if (currentStage < stages.length) {
+            const p = stages[currentStage];
+            document.getElementById("progress-fill-bar").style.width = p + "%";
+            document.getElementById("percentage-label").innerText = p + "%";
+
+            if (p === 100) {
+              clearInterval(fontInterval);
+              clearInterval(charAnimInterval);
+
+              const textElement = document.getElementById("loading-text");
+              loadingFonts.forEach((cls) => textElement.classList.remove(cls));
+              textElement.innerText = "Finish";
+              textElement.style.fontFamily = "Arial, sans-serif";
+            }
+
+            currentStage++;
+          } else {
+            clearInterval(interval);
+            const transitionEl = document.getElementById("page-transition");
+            transitionEl.classList.add("active");
+
+            setTimeout(() => {
+              window.location.href = "MenuUtama.html";
+            }, 1200);
+          }
+        }, 1000);
+      }
+
+      window.onload = () => {
+        setTimeout(startLoading, 2000);
+      };
+    </script>
+  </body>
+</html>

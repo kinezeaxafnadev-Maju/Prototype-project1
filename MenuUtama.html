@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MenuUtama - Countdown & Final Sequence</title>
+    <style>
+      /* RESET & FOUNDATION (TETAP SAMA) */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        background: #000;
+      }
+      .bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+        z-index: 0;
+      }
+      .main-wrapper {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        z-index: 1;
+      }
+      .zone-left {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        position: relative;
+      }
+      .img-wrapper {
+        position: relative;
+        transform-origin: bottom center;
+        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .img-wrapper.shifted {
+        transform: translateX(-60px);
+      }
+      .img-wrapper.squish {
+        transform: scale(1.05, 0.9);
+      }
+      .img-wrapper.shifted.squish {
+        transform: translateX(-60px) scale(1.05, 0.9);
+      }
+      .character {
+        max-width: 100%;
+        max-height: 85vh;
+        height: auto;
+        display: block;
+        user-select: none;
+        cursor: pointer;
+        -webkit-user-drag: none;
+      }
+
+      /* UI ELEMENTS */
+      #pat-hand {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 150px;
+        z-index: 30;
+        display: none;
+        pointer-events: none;
+      }
+      #dialog-wow {
+        position: absolute;
+        top: 25%;
+        left: -50px;
+        background: white;
+        padding: 4px 12px;
+        border: 2px solid #333;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: #333;
+        display: none;
+        z-index: 20;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      }
+      #dialog-wow::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: -6px;
+        transform: translateY(-50%);
+        border-width: 6px 0 6px 6px;
+        border-style: solid;
+        border-color: transparent transparent transparent #333;
+      }
+      #floating-hint {
+        position: absolute;
+        top: -40px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #ff6600;
+        color: #ff6600;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 0.85rem;
+        z-index: 35;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      }
+      #floating-hint.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      #side-dialog {
+        position: absolute;
+        top: 35%;
+        left: 105%;
+        width: 280px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 15px;
+        border: 3px solid #ff6600;
+        font-weight: bold;
+        font-size: 1.1rem;
+        line-height: 1.4;
+        color: #333;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+        z-index: 20;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-20px);
+        transition:
+          opacity 0.3s ease,
+          transform 0.3s ease,
+          visibility 0.3s ease;
+      }
+      #side-dialog.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+      }
+      #side-dialog::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: -12px;
+        transform: translateY(-50%);
+        border-width: 10px 12px 10px 0;
+        border-style: solid;
+        border-color: transparent #ff6600 transparent transparent;
+      }
+
+      /* ZONA KANAN & INPUT (TETAP SAMA) */
+      .zone-right {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-start;
+        padding-bottom: 50px;
+        padding-left: 20px;
+      }
+      .text-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        color: white;
+        max-width: 450px;
+      }
+      .title {
+        font-weight: 900;
+        font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+        line-height: 1.1;
+        margin-bottom: 20px;
+        text-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+      }
+      .input-wrap {
+        width: 100%;
+        max-width: 400px;
+      }
+      .input-box {
+        width: 100%;
+        height: 65px;
+        border: none;
+        outline: none;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #333;
+        text-align: center;
+        font-size: clamp(1.2rem, 2vw, 1.8rem);
+        font-weight: 800;
+        box-shadow: 0 10px 0 rgba(101, 86, 226, 0.85);
+        margin-bottom: 15px;
+        transition:
+          background 0.3s ease,
+          transform 0.1s;
+      }
+      .input-box[readonly] {
+        cursor: not-allowed;
+      }
+      .enter-btn {
+        width: 140px;
+        height: 45px;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        background: #bdbdbd;
+        color: #111;
+        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+        transition: all 0.2s;
+      }
+      .enter-btn.ready {
+        background: #ffffff;
+        box-shadow: 0 6px 0 rgba(101, 86, 226, 0.5);
+      }
+      .enter-btn:active {
+        transform: translateY(4px);
+        box-shadow: 0 2px 0 rgba(101, 86, 226, 0.5);
+      }
+      .hint {
+        margin-top: 25px;
+        font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+        line-height: 1.4;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      }
+
+      /* KUCING & TASKBAR */
+      .kucing-container {
+        position: fixed;
+        bottom: 15px;
+        right: 15px;
+        width: 80px;
+        z-index: 50;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .ping-test {
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+        border: 1px solid #ccc;
+        transition:
+          transform 0.6s ease-in-out,
+          opacity 0.4s ease-in-out;
+        position: relative;
+        z-index: -1;
+      }
+      .ping-test.hide {
+        transform: translateY(40px) scale(0.8);
+        opacity: 0;
+      }
+      .kucing-pojok {
+        width: 100%;
+        display: block;
+      }
+      #taskbar {
+        position: fixed;
+        bottom: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #00ff00;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        z-index: 100;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        pointer-events: none;
+        max-width: 90vw;
+        line-height: 1.4;
+      }
+      #taskbar.show {
+        bottom: 40px;
+      }
+
+      @media (max-width: 768px) {
+        .main-wrapper {
+          grid-template-columns: 1fr;
+          grid-template-rows: 1fr 1fr;
+        }
+        .character {
+          max-height: 45vh;
+        }
+        #side-dialog {
+          left: 50%;
+          transform: translateX(-50%) translateY(20px);
+          top: -10%;
+          width: 90%;
+        }
+        #side-dialog.show {
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      /* === TAMBAHAN BARU: CSS UNTUK ADMIN SECRET === */
+      #admin-trigger-zone {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 300px; /* Lebar area logo */
+        height: 120px; /* Tinggi area logo */
+        z-index: 9999;
+        cursor: default; /* Tetap default agar tidak mencurigakan */
+        background: transparent;
+      }
+
+      #admin-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        z-index: 10000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .admin-modal {
+        background: white;
+        padding: 30px 40px;
+        border-radius: 20px;
+        text-align: center;
+        position: relative;
+        min-width: 350px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        border: 3px solid #333;
+      }
+
+      .admin-close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #888;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+
+      .admin-close:hover {
+        color: #ff5b5b;
+      }
+
+      .admin-title-text {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #111;
+        margin-bottom: 25px;
+      }
+
+      .admin-input-pw {
+        width: 100%;
+        height: 50px;
+        border: 2px solid #ccc;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-align: center;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+
+      .admin-input-pw:focus {
+        border-color: #6556e2;
+      }
+
+      .admin-status-text {
+        margin-top: 15px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        height: 25px; /* Alokasi tempat agar modal tidak naik turun */
+      }
+
+      .admin-status-text.success {
+        color: #2ecc71;
+      }
+
+      .admin-status-text.error {
+        color: #e74c3c;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="admin-trigger-zone"></div>
+
+    <div id="admin-overlay">
+      <div class="admin-modal">
+        <span class="admin-close" id="admin-close-btn">×</span>
+        <div class="admin-title-text">Are You Admin</div>
+        <input
+          type="password"
+          id="admin-password"
+          class="admin-input-pw"
+          placeholder="Password..."
+          autocomplete="off"
+        />
+        <div id="admin-status" class="admin-status-text"></div>
+      </div>
+    </div>
+
+    <img src="MenuUtamaBG.png" alt="Background" class="bg" />
+
+    <div class="main-wrapper">
+      <div class="zone-left">
+        <div id="character-wrapper" class="img-wrapper">
+          <div id="floating-hint">Tekan Untuk Pat Pat dia</div>
+          <div id="dialog-wow">UwU</div>
+          <div id="side-dialog"></div>
+          <img src="patpat.gif" id="pat-hand" alt="patpat" />
+          <img
+            src="Halokine.png"
+            alt="Karakter"
+            id="main-character"
+            class="character"
+          />
+        </div>
+      </div>
+
+      <div class="zone-right">
+        <div class="text-content">
+          <div class="title" id="title">Masukkan Kode<br />Rahasianya</div>
+          <div class="input-wrap">
+            <input
+              type="text"
+              id="codeInput"
+              class="input-box"
+              placeholder="Kodenya?"
+              autocomplete="off"
+            />
+            <button id="enterBtn" class="enter-btn">Enter</button>
+          </div>
+          <div class="hint" id="hint">
+            Jika Berhasil Kebuka ada<br />Kejutan Menanti
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="taskbar">Pat Pat Sedang Di Non Aktifkan</div>
+
+    <div class="kucing-container">
+      <div id="ping-text" class="ping-test hide">Test Ping</div>
+      <img src="kucinguiia.gif" alt="kucing" class="kucing-pojok" />
+    </div>
+
+    <script>
+      // === TAMBAHAN BARU: LOGIKA ADMIN RAHASIA ===
+      const adminTrigger = document.getElementById("admin-trigger-zone");
+      const adminOverlay = document.getElementById("admin-overlay");
+      const adminCloseBtn = document.getElementById("admin-close-btn");
+      const adminPasswordInput = document.getElementById("admin-password");
+      const adminStatus = document.getElementById("admin-status");
+
+      let adminClickCount = 0;
+      let adminClickTimer = null;
+
+      // Logika 7 klik dalam 10 detik
+      adminTrigger.addEventListener("click", () => {
+        adminClickCount++;
+
+        // Memulai timer 10 detik di klik pertama
+        if (adminClickCount === 1) {
+          adminClickTimer = setTimeout(() => {
+            adminClickCount = 0; // Reset jika lewat batas waktu
+          }, 10000);
+        }
+
+        // Jika berhasil 7 kali klik
+        if (adminClickCount >= 7) {
+          clearTimeout(adminClickTimer);
+          adminClickCount = 0; // Reset untuk jaga-jaga
+
+          // Tampilkan Modal
+          adminOverlay.style.display = "flex";
+          adminPasswordInput.value = "";
+          adminStatus.textContent = "";
+          adminStatus.className = "admin-status-text";
+          adminPasswordInput.focus();
+        }
+      });
+
+      // Menutup modal
+      adminCloseBtn.addEventListener("click", () => {
+        adminOverlay.style.display = "none";
+      });
+
+      // Logika validasi kata sandi saat ditekan 'Enter'
+      adminPasswordInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const val = adminPasswordInput.value;
+
+          if (val === "AFNAADMIN") {
+            adminStatus.textContent = "Berhasil";
+            adminStatus.className = "admin-status-text success";
+
+            // Jeda sejenak sebelum berpindah halaman agar efek tulisan "Berhasil" terlihat
+            setTimeout(() => {
+              window.location.href = "IndeksUtama.html";
+            }, 1000);
+          } else {
+            adminStatus.textContent = "Salah";
+            adminStatus.className = "admin-status-text error";
+            adminPasswordInput.value = ""; // Mengosongkan kolom input untuk coba lagi
+          }
+        }
+      });
+
+      // === PONDASI KODE ASLI (TIDAK DIUBAH) ===
+
+      // === REDIRECT PEMAKSAAN SAAT RESET (FIXED BUG LOOPING) ===
+      setInterval(() => {
+        if (localStorage.getItem("forceRedirect") === "true") {
+          localStorage.removeItem("forceRedirect");
+          window.location.href = "LoadingMenuFinale.html";
+        }
+      }, 500);
+
+      let defaultCharacter = "Halokine.png";
+      let isInteracting = false;
+      let isTaskbarActive = false;
+      let isInputLocked = false;
+      let isTaskbarCooldown = false;
+      let normalWrongCount = 0;
+
+      // Story tracking
+      let storyPhase = 0;
+      let patSeconds = 5;
+      let patTimerInterval = null;
+      let finalHintVisible = false;
+      let lastStatusBuka =
+        localStorage.getItem("statusBukaPercakapan") || "TUTUP";
+
+      // Variables untuk Taskbar timeout
+      let taskbarTimeout1 = null;
+      let taskbarTimeout2 = null;
+
+      const input = document.getElementById("codeInput");
+      const enterBtn = document.getElementById("enterBtn");
+      const title = document.getElementById("title");
+
+      const SECRET_STORY = "Admin123";
+      const SECRET_FINAL = "TikaCantik";
+
+      const charaImage = document.getElementById("main-character");
+      const charaWrapper = document.getElementById("character-wrapper");
+      const patHand = document.getElementById("pat-hand");
+      const dialogWow = document.getElementById("dialog-wow");
+      const sideDialog = document.getElementById("side-dialog");
+      const taskbar = document.getElementById("taskbar");
+      const floatingHint = document.getElementById("floating-hint");
+
+      /* 0. PING KUCING */
+      const pingText = document.getElementById("ping-text");
+      function runPingAnimation() {
+        pingText.classList.remove("hide");
+        setTimeout(() => {
+          pingText.classList.add("hide");
+          setTimeout(runPingAnimation, 15000);
+        }, 5000);
+      }
+      setTimeout(runPingAnimation, 1000);
+
+      /* 1. UI HELPERS & TASKBAR FIX */
+      function clearTaskbarTimeouts() {
+        if (taskbarTimeout1) clearTimeout(taskbarTimeout1);
+        if (taskbarTimeout2) clearTimeout(taskbarTimeout2);
+      }
+
+      function triggerTaskbar(message, duration = 3000) {
+        clearTaskbarTimeouts();
+        isTaskbarActive = true;
+        taskbar.innerHTML = message;
+        taskbar.classList.add("show");
+
+        taskbarTimeout1 = setTimeout(() => {
+          taskbar.classList.remove("show");
+          taskbarTimeout2 = setTimeout(() => {
+            isTaskbarActive = false;
+          }, 1000);
+        }, duration);
+      }
+
+      function showReactBar(text, charaSrc = null) {
+        if (charaSrc) charaImage.src = charaSrc;
+        sideDialog.innerHTML = text;
+        sideDialog.classList.add("show");
+        charaWrapper.classList.add("shifted");
+      }
+
+      function hideReactBar() {
+        sideDialog.classList.remove("show");
+        charaWrapper.classList.remove("shifted");
+      }
+
+      function showPatPatAkuDong() {
+        floatingHint.innerText = "Pat Pat aku dong";
+        floatingHint.classList.add("show");
+        setTimeout(() => {
+          floatingHint.classList.remove("show");
+        }, 4000);
+      }
+
+      /* 2. ADMIN STATUS POLLING & LOCKING LOGIC */
+      if (lastStatusBuka === "BUKA") {
+        showPatPatAkuDong();
+      }
+
+      setInterval(() => {
+        const currentStatus =
+          localStorage.getItem("statusBukaPercakapan") || "TUTUP";
+        if (currentStatus === "TUTUP") {
+          if (!isInputLocked) {
+            input.readOnly = true;
+            input.value = "TERKUNCI";
+            input.style.background = "rgba(255, 255, 255, 0.92)";
+            enterBtn.classList.remove("ready");
+            isInputLocked = true;
+          }
+          if (input.value !== "TERKUNCI") input.value = "TERKUNCI";
+        } else {
+          if (isInputLocked) {
+            input.readOnly = false;
+            input.value = "";
+            input.placeholder = "Kodenya?";
+            isInputLocked = false;
+            showPatPatAkuDong();
+          }
+        }
+        lastStatusBuka = currentStatus;
+      }, 500);
+
+      input.addEventListener("click", () => {
+        if (isInputLocked) {
+          if (!isTaskbarCooldown) {
+            triggerTaskbar("Admin Belum Memulai Acaranya", 2000);
+            isTaskbarCooldown = true;
+            setTimeout(() => {
+              isTaskbarCooldown = false;
+            }, 2000);
+          }
+        }
+      });
+
+      input.addEventListener("input", () => {
+        if (isInputLocked) return;
+        const val = input.value;
+        if (val.length > 0) enterBtn.classList.add("ready");
+        else enterBtn.classList.remove("ready");
+
+        if (val === "") input.style.background = "rgba(255, 255, 255, 0.92)";
+        else if (val === SECRET_FINAL) input.style.background = "#4ceb52";
+        else if (val.toLowerCase() === SECRET_STORY.toLowerCase())
+          input.style.background = "#ffa500";
+        else input.style.background = "rgba(255, 255, 255, 0.92)";
+      });
+
+      function prosesKode() {
+        if (isInputLocked) return;
+        const val = input.value;
+
+        if (val === SECRET_FINAL) {
+          input.style.background = "#4ceb52";
+          title.innerHTML = "Wait...<br>For Minutes";
+          showReactBar("Kamu Berhasil!", "Horekine.png");
+
+          setTimeout(() => {
+            window.location.href = "KontenUtama.html";
+          }, 2000);
+        } else if (val.toLowerCase() === SECRET_STORY.toLowerCase()) {
+          const hasTriggered =
+            localStorage.getItem("hasTriggeredAdminStory") === "true";
+
+          if (!hasTriggered) {
+            input.style.background = "#ffa500";
+            localStorage.setItem("hasTriggeredAdminStory", "true");
+            isInteracting = true;
+            showReactBar("Kodenya salah, coba lagi!", "Salahkine.png");
+
+            setTimeout(() => {
+              hideReactBar();
+              defaultCharacter = "Gagahkine.png";
+              charaImage.src = defaultCharacter;
+              setTimeout(() => {
+                triggerTaskbar(
+                  "Coba Pat Pat Dia Mungkin dia Nyembunyiin Passwordnya",
+                  4000,
+                );
+                floatingHint.innerText = "Tekan Untuk Pat Pat dia";
+                floatingHint.classList.add("show");
+                isInteracting = false;
+                storyPhase = 1;
+              }, 1000);
+            }, 4000);
+          } else {
+            input.style.background = "#ff5b5b";
+            showReactBar("Skenario ini sudah digunakan!", "Salahkine.png");
+            setTimeout(hideReactBar, 3000);
+          }
+
+          setTimeout(() => {
+            input.value = "";
+            input.style.background = "rgba(255, 255, 255, 0.92)";
+            enterBtn.classList.remove("ready");
+          }, 1000);
+        } else {
+          input.style.background = "#ff5b5b";
+          if (normalWrongCount === 0) {
+            showReactBar("Kode Salah, Coba Lagi!", "Salahkine.png");
+            normalWrongCount++;
+          } else {
+            showReactBar("Masih Salah, Coba Lagi!", "Salahkine.png");
+          }
+
+          setTimeout(() => {
+            hideReactBar();
+            charaImage.src = defaultCharacter;
+          }, 3000);
+
+          setTimeout(() => {
+            input.value = "";
+            input.style.background = "rgba(255, 255, 255, 0.92)";
+            enterBtn.classList.remove("ready");
+          }, 1000);
+        }
+      }
+
+      enterBtn.addEventListener("click", prosesKode);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") prosesKode();
+      });
+
+      /* 3. PAT PAT & COUNTDOWN STORY */
+      function startPat() {
+        if (isInputLocked) {
+          if (!isTaskbarCooldown) {
+            triggerTaskbar("Kamu Belum Bisa Pat Pat dia Sekarang", 2000);
+            isTaskbarCooldown = true;
+            setTimeout(() => {
+              isTaskbarCooldown = false;
+            }, 2000);
+          }
+          return;
+        }
+
+        if (isInteracting) return;
+
+        clearTaskbarTimeouts();
+
+        if (finalHintVisible) {
+          floatingHint.classList.remove("show");
+          finalHintVisible = false;
+        }
+
+        charaImage.src = "Uwukine.png";
+        patHand.style.display = "block";
+        dialogWow.style.display = "block";
+        charaWrapper.classList.add("squish");
+
+        if (storyPhase === 1 || storyPhase === 2) {
+          patSeconds = 5;
+          taskbar.classList.add("show");
+          taskbar.innerHTML = `Pat Pat dia Selama ${patSeconds} detik lagi`;
+
+          patTimerInterval = setInterval(() => {
+            patSeconds--;
+            if (patSeconds > 0) {
+              taskbar.innerHTML = `Pat Pat dia Selama ${patSeconds} detik lagi`;
+            } else {
+              clearInterval(patTimerInterval);
+              taskbar.innerHTML = "Finish";
+              setTimeout(() => {
+                taskbar.classList.remove("show");
+                if (storyPhase === 1) executeNgambekPhase();
+                else if (storyPhase === 2) executeMengakuPhase();
+              }, 800);
+            }
+          }, 1000);
+        }
+      }
+
+      function stopPat() {
+        if (patTimerInterval) clearInterval(patTimerInterval);
+        if (!isInteracting && (storyPhase === 1 || storyPhase === 2)) {
+          taskbar.classList.remove("show");
+        }
+        if (isInteracting) return;
+        charaImage.src = defaultCharacter;
+        patHand.style.display = "none";
+        dialogWow.style.display = "none";
+        charaWrapper.classList.remove("squish");
+      }
+
+      function executeNgambekPhase() {
+        isInteracting = true;
+        storyPhase = 0;
+        floatingHint.classList.remove("show");
+        showReactBar("Tidak akan berpengaruh! kau tahu?", "Ngambekkine.png");
+
+        setTimeout(() => {
+          hideReactBar();
+          defaultCharacter = "Ngambekkine.png";
+          charaImage.src = defaultCharacter;
+
+          setTimeout(() => {
+            triggerTaskbar(
+              "Pat Pat dia kembali selama 5 detik,<br>Untuk Membuat dia mengaku",
+              5000,
+            );
+            setTimeout(() => {
+              floatingHint.innerText = "Pap Pap dia Kembali";
+              floatingHint.classList.add("show");
+              storyPhase = 2;
+              isInteracting = false;
+            }, 5000);
+          }, 1000);
+        }, 4000);
+      }
+
+      function executeMengakuPhase() {
+        isInteracting = true;
+        storyPhase = 3;
+        floatingHint.classList.remove("show");
+
+        defaultCharacter = "Gagahkine.png";
+
+        showReactBar("Baiklah akan ku kasih tau", "Marahkine.png");
+        setTimeout(() => {
+          hideReactBar();
+          setTimeout(() => {
+            showReactBar(
+              "Kata Sandinya adalah TikaCantik,<br>dengan huruf T dan C nya wajib kapital ya",
+              "Satukine.png",
+            );
+            setTimeout(() => {
+              hideReactBar();
+              setTimeout(() => {
+                showReactBar(
+                  "Dan Aku Dapetnya dari Cadangan Kode<br>yang admin siapin",
+                  "Gagahkine.png",
+                );
+                setTimeout(() => {
+                  hideReactBar();
+                  setTimeout(() => {
+                    showReactBar(
+                      "Tunggu apa lagi?,<br>Langsung saja Coba Kode Cadangannya!",
+                      "Horekine.png",
+                    );
+                    setTimeout(() => {
+                      hideReactBar();
+                      charaImage.src = defaultCharacter;
+                      playFinalSequence();
+                    }, 4000);
+                  }, 500);
+                }, 4000);
+              }, 500);
+            }, 5000);
+          }, 500);
+        }, 2000);
+      }
+
+      function playFinalSequence() {
+        setTimeout(() => {
+          triggerTaskbar(
+            "Kamu Dapat Pat Pat dia sesuka hati selama masih di Menu ini",
+            3000,
+          );
+          setTimeout(() => {
+            triggerTaskbar("Interaksi di menu ini sudah usai", 3000);
+            setTimeout(() => {
+              triggerTaskbar(
+                "segera lanjut dengan masukan kode Cadangan tadi",
+                3000,
+              );
+              setTimeout(() => {
+                triggerTaskbar("TikaCantik", 3000);
+                setTimeout(() => {
+                  triggerTaskbar("Sangat Cantik :3", 3000);
+                  setTimeout(() => {
+                    floatingHint.innerText = "Pat Pat Dia kembali";
+                    floatingHint.classList.add("show");
+                    finalHintVisible = true;
+                    isInteracting = false;
+                  }, 4000);
+                }, 4000);
+              }, 4000);
+            }, 4000);
+          }, 4000);
+        }, 1000);
+      }
+
+      charaImage.addEventListener("mousedown", startPat);
+      window.addEventListener("mouseup", stopPat);
+      charaImage.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        startPat();
+      });
+      window.addEventListener("touchend", stopPat);
+      window.addEventListener("touchcancel", stopPat);
+    </script>
+  </body>
+</html>
