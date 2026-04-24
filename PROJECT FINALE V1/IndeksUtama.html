@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Admin - IndeksUtama</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background-color: #a8e6cf;
+        background-image: url("MenuUtamaBG.png");
+        background-position: top center;
+        background-repeat: no-repeat;
+        background-size: 100% auto;
+        color: white;
+        min-height: 100vh;
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(
+          90deg,
+          #001f3f 0%,
+          #0074d9 50%,
+          #b10dc9 100%
+        );
+        padding: 10px 20px;
+        border-bottom: 3px solid white;
+        flex-wrap: wrap;
+      }
+
+      .nav-logo {
+        font-weight: 800;
+        font-size: 1.2rem;
+      }
+      .nav-links {
+        display: flex;
+        gap: 30px;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+      .nav-author {
+        font-family: cursive;
+        font-size: 1.2rem;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 30px;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 20px;
+        backdrop-filter: blur(5px);
+      }
+
+      .header-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 40px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 15px;
+      }
+
+      .header-area h1 {
+        font-size: 3rem;
+      }
+      .header-area p {
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+
+      .config-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .config-label {
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+
+      .status-box {
+        width: 140px;
+        height: 45px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #333;
+        text-align: center;
+      }
+
+      .action-group {
+        display: flex;
+        gap: 15px;
+      }
+
+      .btn {
+        padding: 10px 25px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0px 5px 0px rgba(0, 0, 0, 0.2);
+        transition:
+          transform 0.1s,
+          box-shadow 0.1s;
+      }
+
+      .btn:active {
+        transform: translateY(5px);
+        box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-green {
+        background-color: #2ecc71;
+        box-shadow: 0px 5px 0px #27ae60;
+      }
+      .btn-green:active {
+        box-shadow: 0px 0px 0px #27ae60;
+      }
+
+      .btn-red {
+        background-color: #ff4757;
+        box-shadow: 0px 5px 0px #c0392b;
+      }
+      .btn-red:active {
+        box-shadow: 0px 0px 0px #c0392b;
+      }
+
+      .btn-gray {
+        background-color: #7f8c8d !important;
+        box-shadow: 0px 5px 0px #636e72 !important;
+        color: #ecf0f1 !important;
+      }
+      .btn-gray:active {
+        box-shadow: 0px 0px 0px #636e72 !important;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          background-size: cover;
+        }
+        nav {
+          flex-direction: column;
+          gap: 10px;
+          text-align: center;
+        }
+        .header-area {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 10px;
+        }
+        .header-area h1 {
+          font-size: 2.2rem;
+        }
+        .config-row {
+          flex-direction: column;
+          justify-content: center;
+          text-align: center;
+          gap: 15px;
+          margin-bottom: 40px;
+        }
+        .config-label {
+          font-size: 1.3rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-logo">THE PROTOTYPE<br />PROJECT V1</div>
+      <div class="nav-links">
+        <span>Home</span>
+        <span>Bertanya</span>
+      </div>
+      <div class="nav-author">By Abqori</div>
+    </nav>
+
+    <div class="container">
+      <div class="header-area">
+        <h1>Panel Admin</h1>
+        <p>Copyright © Abqori</p>
+      </div>
+
+      <div class="config-row">
+        <div class="config-label">Status Izin Konten<br />Utama Website :</div>
+        <div class="status-box" id="status-izin-konten">-</div>
+      </div>
+
+      <div class="config-row">
+        <div class="config-label">Buka Percakapan nya</div>
+        <div class="action-group">
+          <button class="btn btn-green" id="btn-buka">BUKA</button>
+          <button class="btn btn-red" id="btn-tutup">Tutup</button>
+        </div>
+      </div>
+
+      <div class="config-row">
+        <div class="config-label">Status User Masuk<br />ke KontenU :</div>
+        <div class="status-box" id="status-user-masuk">-</div>
+      </div>
+
+      <div class="config-row">
+        <div class="config-label">Status Pemberian<br />Hadiah :</div>
+        <div class="status-box" id="status-pemberian-hadiah">-</div>
+      </div>
+
+      <div class="config-row">
+        <div class="config-label">Status Hadiah :</div>
+        <div class="status-box" id="status-hadiah">BELUM</div>
+      </div>
+
+      <div class="config-row">
+        <div class="config-label">Sudah Memberikan<br />Hadiah?</div>
+        <div class="action-group">
+          <button class="btn btn-green" id="btn-izin-sudah">Sudah</button>
+          <button class="btn btn-red" id="btn-izin-belum">Belum</button>
+        </div>
+      </div>
+
+      <div class="config-row">
+        <div class="config-label">Status Lanjut :</div>
+        <div class="status-box" id="status-lanjut">-</div>
+      </div>
+
+      <div
+        class="config-row"
+        style="
+          margin-top: 50px;
+          border-top: 2px solid rgba(255, 255, 255, 0.2);
+          padding-top: 30px;
+        "
+      >
+        <div class="config-label">
+          Reset Data Skenario<br /><span
+            style="font-size: 1rem; font-weight: 400"
+            >(Mulai dari awal)</span
+          >
+        </div>
+        <div class="action-group">
+          <button class="btn btn-red" id="btn-reset-all">RESET DATA</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const btnSudah = document.getElementById("btn-izin-sudah");
+        const btnBelum = document.getElementById("btn-izin-belum");
+        const btnReset = document.getElementById("btn-reset-all");
+
+        const btnBuka = document.getElementById("btn-buka");
+        const btnTutup = document.getElementById("btn-tutup");
+
+        const statusIzinKontenBox =
+          document.getElementById("status-izin-konten");
+        const statusUserMasukBox = document.getElementById("status-user-masuk");
+        const statusHadiahBox = document.getElementById("status-hadiah");
+        const statusPemberianHadiahBox = document.getElementById(
+          "status-pemberian-hadiah",
+        );
+        const statusLanjutBox = document.getElementById("status-lanjut");
+
+        function pantauDataUI() {
+          // Status Buka/Tutup Percakapan (Config 1 & 2)
+          const statusBuka =
+            localStorage.getItem("statusBukaPercakapan") || "TUTUP";
+          if (statusBuka === "BUKA") {
+            btnBuka.classList.remove("btn-gray");
+            btnTutup.classList.add("btn-gray");
+            statusIzinKontenBox.innerText = "BUKA";
+            statusIzinKontenBox.style.color = "#2ecc71";
+          } else {
+            btnTutup.classList.remove("btn-gray");
+            btnBuka.classList.add("btn-gray");
+            statusIzinKontenBox.innerText = "TUTUP";
+            statusIzinKontenBox.style.color = "#ff4757";
+          }
+
+          // Status User Masuk Ke KontenU (Config 3)
+          const statusUserMasuk =
+            localStorage.getItem("statusUserMasuk") || "BELUM";
+          if (statusUserMasuk === "BERPINDAH") {
+            statusUserMasukBox.innerText = "BERPINDAH";
+            statusUserMasukBox.style.color = "#2ecc71";
+          } else {
+            statusUserMasukBox.innerText = "BELUM";
+            statusUserMasukBox.style.color = "#ff4757";
+          }
+
+          // Status Pemberian Hadiah (Config 4)
+          const statusBeri = localStorage.getItem("statusPemberianHadiah");
+          if (statusBeri === "READY") {
+            statusPemberianHadiahBox.innerText = "READY";
+            statusPemberianHadiahBox.style.color = "#2ecc71";
+          } else {
+            statusPemberianHadiahBox.innerText = "-";
+            statusPemberianHadiahBox.style.color = "#333";
+          }
+
+          // Status Izin Hadiah (Config 5 & 6)
+          const statusIzin = localStorage.getItem("izinLanjutHadiah");
+          if (statusIzin === "true") {
+            statusHadiahBox.innerText = "SUDAH";
+            statusHadiahBox.style.color = "#2ecc71";
+          } else {
+            statusHadiahBox.innerText = "BELUM";
+            statusHadiahBox.style.color = "#ff4757";
+          }
+
+          // Status Lanjut P16 (Config 7)
+          const statusLanjut = localStorage.getItem("statusLanjutP16");
+          if (statusLanjut === "LANJUT!") {
+            statusLanjutBox.innerText = "LANJUT!";
+            statusLanjutBox.style.color = "#2ecc71";
+          } else if (statusLanjut === "CUKUP") {
+            statusLanjutBox.innerText = "CUKUP";
+            statusLanjutBox.style.color = "#ff4757";
+          } else {
+            statusLanjutBox.innerText = "-";
+            statusLanjutBox.style.color = "#333";
+          }
+        }
+
+        // Set default LocalStorage
+        if (localStorage.getItem("izinLanjutHadiah") === null)
+          localStorage.setItem("izinLanjutHadiah", "false");
+        if (localStorage.getItem("statusBukaPercakapan") === null)
+          localStorage.setItem("statusBukaPercakapan", "TUTUP");
+        if (localStorage.getItem("statusUserMasuk") === null)
+          localStorage.setItem("statusUserMasuk", "BELUM");
+
+        pantauDataUI();
+        setInterval(pantauDataUI, 500);
+
+        // Event Tombol Hadiah
+        btnSudah.addEventListener("click", () => {
+          localStorage.setItem("izinLanjutHadiah", "true");
+          pantauDataUI();
+        });
+        btnBelum.addEventListener("click", () => {
+          localStorage.setItem("izinLanjutHadiah", "false");
+          pantauDataUI();
+        });
+
+        // Event Tombol Buka/Tutup
+        btnBuka.addEventListener("click", () => {
+          localStorage.setItem("statusBukaPercakapan", "BUKA");
+          pantauDataUI();
+        });
+        btnTutup.addEventListener("click", () => {
+          localStorage.setItem("statusBukaPercakapan", "TUTUP");
+          pantauDataUI();
+        });
+
+        // Event Tombol Reset
+        btnReset.addEventListener("click", () => {
+          if (
+            confirm(
+              "Apakah kamu yakin ingin me-reset semua data dari awal dan memaksa User ke halaman finale?",
+            )
+          ) {
+            localStorage.clear();
+            localStorage.setItem("izinLanjutHadiah", "false");
+            localStorage.setItem("statusBukaPercakapan", "TUTUP");
+            localStorage.setItem("statusUserMasuk", "BELUM");
+            localStorage.setItem("hasTriggeredAdminStory", "false");
+            localStorage.setItem("forceRedirect", "true"); // Triggers redirect in other windows
+            pantauDataUI();
+            alert(
+              "Seluruh data telah di-reset! User akan dipaksa kembali ke Loading Menu Finale.",
+            );
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

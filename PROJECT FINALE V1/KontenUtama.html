@@ -1,0 +1,1314 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project VI - Story Mode (Fixed Storyboard & Layout)</title>
+    <style>
+      /* RESET & FOUNDATION */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+      }
+      .bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+        z-index: 0;
+      }
+      #scene {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1;
+      }
+
+      /* KARAKTER */
+      #character {
+        position: absolute;
+        bottom: -100%;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 85vh;
+        z-index: 10;
+        transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+      #character.pos-center {
+        bottom: -5%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      #character.pos-left {
+        bottom: -5%;
+        left: 15%;
+        transform: translateX(0);
+      }
+
+      /* KOTAK DIALOG */
+      #dialog-box {
+        position: absolute;
+        top: 25%;
+        right: 15%;
+        width: auto;
+        max-width: 450px;
+        background-color: #fce06d;
+        border: 4px solid #5d4037;
+        border-radius: 15px;
+        box-shadow: 6px 6px 0px #5d4037;
+        padding: 15px 30px;
+        z-index: 5;
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(0.8) translateY(20px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        align-items: center;
+        min-height: 100px;
+      }
+      #dialog-box.show {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1) translateY(0);
+      }
+      #dialog-box.shift-right {
+        right: 5%;
+      }
+
+      /* KELAS KHUSUS P18 UNTUK BACKGROUND DIALOG TRANSPARAN */
+      #dialog-box.no-bg-style {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 600px;
+        right: 5%;
+      }
+      #dialog-box.no-bg-style .sparkle {
+        display: none;
+      }
+      .dialog-bubble-p18 {
+        background-color: #fce06d;
+        border: 4px solid #5d4037;
+        border-radius: 15px;
+        box-shadow: 6px 6px 0px #5d4037;
+        padding: 15px 30px;
+        margin-bottom: 15px;
+        font-size: 2.2rem;
+        line-height: 1.2;
+        color: #174d4c;
+        font-weight: 900;
+        width: fit-content;
+        max-width: 100%;
+        white-space: normal;
+      }
+
+      /* BUBBLE ATAS TENGAH (RESPON P18) */
+      #side-response-p18 {
+        position: absolute;
+        top: -30%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #38b6ff;
+        color: white;
+        font-size: 2.2rem;
+        font-weight: 900;
+        padding: 15px 40px;
+        border-radius: 35px;
+        box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+        transition: top 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 20;
+        white-space: nowrap;
+      }
+      #side-response-p18.show {
+        top: 3%;
+      }
+
+      #dialog-text {
+        color: #174d4c;
+        font-weight: 900;
+        width: 100%;
+        text-align: left;
+        transition: opacity 0.3s ease;
+      }
+      .text-part1 {
+        font-size: 3.5rem;
+        letter-spacing: 1px;
+      }
+      .text-part2 {
+        font-size: 2.2rem;
+        line-height: 1.3;
+      }
+      .text-part3 {
+        font-size: 3rem;
+        line-height: 1.2;
+      }
+      .text-part4 {
+        font-size: 3.2rem;
+        line-height: 1.2;
+      }
+      .text-part5 {
+        font-size: 3.3rem;
+      }
+      .text-part6 {
+        font-size: 2.5rem;
+      }
+      .text-part7 {
+        font-size: 4rem;
+      }
+      .text-part8 {
+        font-size: 2.6rem;
+        line-height: 1.2;
+      }
+      .text-part9 {
+        font-size: 2.8rem;
+        line-height: 1.2;
+      }
+      .text-part10 {
+        font-size: 3rem;
+        line-height: 1.2;
+      }
+      .dialog-split-1 {
+        border-bottom: 3px dashed #174d4c;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #174d4c;
+      }
+      .dialog-split-2 {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #174d4c;
+      }
+      .txt-large {
+        font-size: 1.4rem;
+        font-weight: 900;
+      }
+
+      .sparkle {
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        background-color: #d33c30;
+        clip-path: polygon(
+          50% 0%,
+          60% 40%,
+          100% 50%,
+          60% 60%,
+          50% 100%,
+          40% 60%,
+          0% 50%,
+          40% 40%
+        );
+      }
+      .sparkle::after {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        background-color: #ff5b5b;
+        clip-path: polygon(
+          50% 0%,
+          60% 40%,
+          100% 50%,
+          60% 60%,
+          50% 100%,
+          40% 60%,
+          0% 50%,
+          40% 40%
+        );
+      }
+      .sparkle.top-left {
+        top: -10px;
+        left: -10px;
+        transform: rotate(-15deg);
+      }
+      .sparkle.bottom-right {
+        bottom: -10px;
+        right: -10px;
+        transform: rotate(15deg);
+      }
+
+      /* TOMBOL & OPSI */
+      .action-container {
+        position: absolute;
+        bottom: 5%;
+        right: 5%;
+        z-index: 20;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s ease;
+      }
+      .action-container.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      #options-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      #options-p16,
+      #options-p17,
+      #options-p17-part2 {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 15px;
+      }
+      #options-p16 .option-btn,
+      #options-p17 .option-btn,
+      #options-p17-part2 .option-btn {
+        min-width: 170px;
+      }
+
+      #opt-lanjut:hover,
+      #opt-bercanda:hover,
+      #opt-bercanda-2:hover {
+        border-color: #2ecc71;
+        color: #2ecc71;
+        box-shadow: 0 0 15px #2ecc71;
+      }
+      #opt-cukup:hover,
+      #opt-iya:hover,
+      #opt-iya-2:hover {
+        border-color: #ff4757;
+        color: #ff4757;
+        box-shadow: 0 0 15px #ff4757;
+      }
+
+      .glow-green {
+        border-color: #2ecc71 !important;
+        color: #2ecc71 !important;
+        box-shadow:
+          0 0 25px #2ecc71,
+          inset 0 0 10px #2ecc71 !important;
+        background: #fff !important;
+      }
+      .glow-red {
+        border-color: #ff4757 !important;
+        color: #ff4757 !important;
+        box-shadow:
+          0 0 25px #ff4757,
+          inset 0 0 10px #ff4757 !important;
+        background: #fff !important;
+      }
+
+      .std-btn,
+      .option-btn {
+        background: #ffffff;
+        color: #174d4c;
+        border: 2px solid #174d4c;
+        border-radius: 35px;
+        padding: 10px 25px;
+        font-size: 1.8rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition:
+          transform 0.2s,
+          background 0.2s,
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .std-btn {
+        gap: 10px;
+      }
+      .option-btn {
+        justify-content: space-between;
+        min-width: 250px;
+      }
+      .std-btn:hover,
+      .option-btn:hover {
+        transform: scale(1.05);
+        background: #f0f0f0;
+      }
+      .btn-text {
+        display: none;
+      }
+      .std-btn.with-text .btn-text {
+        display: inline;
+      }
+      .std-btn span:last-child,
+      .option-btn span:last-child {
+        transition: transform 0.2s;
+      }
+      .std-btn:hover span:last-child,
+      .option-btn:hover span:last-child {
+        transform: translateX(5px);
+      }
+
+      /* REMINDER BOX */
+      #reminder-box {
+        position: absolute;
+        top: 45%;
+        right: 15%;
+        background: #ffffff;
+        border: 2px solid #333;
+        border-radius: 15px;
+        padding: 15px 25px;
+        color: #174d4c;
+        z-index: 20;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.2);
+        text-align: center;
+      }
+      #reminder-box.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      #reminder-box.shift-right {
+        right: 5%;
+      }
+      #reminder-box.shift-left {
+        right: auto;
+        left: 15%;
+      }
+
+      /* HOTSPOT & OVERLAYS */
+      #letter-hotspot {
+        position: absolute;
+        bottom: 12%;
+        left: calc(50% - 80px);
+        width: 170px;
+        height: 170px;
+        background: rgba(255, 235, 59, 0.05);
+        border: 2px solid rgba(251, 192, 45, 0.3);
+        border-radius: 50%;
+        z-index: 25;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        animation: pulseGlow 1.5s infinite;
+      }
+      #letter-hotspot.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      #letter-hotspot::after {
+        content: "Klik Untuk Membacanya";
+        position: absolute;
+        bottom: -45px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #d33c30;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: bold;
+        padding: 6px 12px;
+        border-radius: 5px;
+        white-space: nowrap;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      #letter-overlay,
+      #gift-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.5s ease;
+      }
+      #letter-overlay {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      #gift-overlay {
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(3px);
+        display: flex;
+      }
+      #letter-overlay.show,
+      #gift-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      #progress-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: #e0e0e0;
+      }
+      #progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #2e7d32;
+        transition: width 0.1s;
+      }
+      #letter-scroll-area {
+        width: 90%;
+        max-width: 600px;
+        height: 80vh;
+        overflow-y: auto;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        scrollbar-width: none;
+      }
+      #letter-scroll-area::-webkit-scrollbar {
+        display: none;
+      }
+      #surat-img {
+        width: 100%;
+        display: block;
+      }
+      #close-letter-btn {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        background: #d33c30;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 25px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+      #close-letter-btn.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      #close-letter-btn:hover {
+        background: #b72b20;
+        transform: scale(1.05);
+      }
+
+      #gift-hotspot {
+        position: absolute;
+        bottom: 15%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 250px;
+        height: 250px;
+        background: transparent;
+        border: none;
+        z-index: 25;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+      }
+      #gift-hotspot.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      #gift-hotspot::before {
+        content: "Klik Kado untuk Membukanya";
+        position: absolute;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #d33c30;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: bold;
+        padding: 8px 15px;
+        border-radius: 5px;
+        white-space: nowrap;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        animation: floatingText 1.5s infinite alternate ease-in-out;
+      }
+      @keyframes floatingText {
+        0% {
+          transform: translate(-50%, 0);
+        }
+        100% {
+          transform: translate(-50%, -10px);
+        }
+      }
+      @keyframes pulseGlow {
+        0% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(255, 235, 59, 0.2);
+        }
+        70% {
+          transform: scale(1.05);
+          box-shadow: 0 0 0 25px rgba(255, 235, 59, 0);
+        }
+        100% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(255, 235, 59, 0);
+        }
+      }
+
+      #gift-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        width: 100%;
+        height: 100%;
+      }
+      #gift-reminder {
+        background: #ffffff;
+        border: 3px solid #333;
+        border-radius: 15px;
+        padding: 15px 20px;
+        color: #174d4c;
+        font-weight: 900;
+        font-size: 1.3rem;
+        max-width: 250px;
+        text-align: center;
+        box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transform: translateX(-30px);
+        transition: all 0.5s ease 0.3s;
+      }
+      #gift-overlay.show #gift-reminder {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      #gift-popup {
+        background: #b2f17b;
+        border: 4px solid #333;
+        border-radius: 25px;
+        padding: 20px 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.2);
+        transform: translateY(100px) scale(0.8);
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        max-width: 320px;
+      }
+      #gift-overlay.show #gift-popup {
+        transform: translateY(0) scale(1);
+      }
+      #gift-popup h2,
+      #gift-popup h3 {
+        color: #174d4c;
+        text-align: center;
+        font-weight: 900;
+      }
+      #gift-popup h2 {
+        font-size: 1.4rem;
+        margin: 0 0 10px 0;
+      }
+      #gift-popup h3 {
+        font-size: 1.4rem;
+        margin: 10px 0 0 0;
+      }
+      #gift-popup img {
+        width: 100%;
+        max-width: 200px;
+        border-radius: 15px;
+        object-fit: contain;
+      }
+      #close-gift-btn {
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 45px;
+        height: 45px;
+        background: #ff5b5b;
+        color: white;
+        border: 3px solid #333;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        transition:
+          transform 0.2s,
+          background 0.2s;
+      }
+      #close-gift-btn:hover {
+        transform: scale(1.15);
+        background: #d33c30;
+      }
+
+      /* P13 BLOKER */
+      #p13-container {
+        position: relative;
+      }
+      #blocker-hijau {
+        position: absolute;
+        inset: 0;
+        background-color: #2ecc71;
+        color: white;
+        border: 3px solid #27ae60;
+        border-radius: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 900;
+        cursor: pointer;
+        z-index: 5;
+        transition:
+          opacity 0.4s ease,
+          visibility 0.4s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      #blocker-hijau.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      #reminder-p13 {
+        position: absolute;
+        bottom: 110%;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: #333;
+        color: white;
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        z-index: 10;
+        pointer-events: none;
+      }
+      #reminder-p13.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* P18 BLOKER COUNTDOWN */
+      #p18-container {
+        position: relative;
+      }
+      #blocker-p18 {
+        position: absolute;
+        inset: 0;
+        background-color: #95a5a6;
+        color: white;
+        border: 3px solid #7f8c8d;
+        border-radius: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 900;
+        z-index: 10;
+        cursor: not-allowed;
+        transition:
+          transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+          opacity 0.5s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="Background2Pesta.png" alt="Background Pesta" class="bg" />
+
+    <div id="scene">
+      <img src="Horekine.png" id="character" alt="Karakter" />
+
+      <div id="side-response-p18">Sudah Pasti 😎</div>
+
+      <div id="letter-hotspot"></div>
+      <div id="gift-hotspot"></div>
+
+      <div id="dialog-box">
+        <div class="sparkle top-left"></div>
+        <div class="sparkle bottom-right"></div>
+        <div id="dialog-text" class="text-part1">I Am Back!</div>
+      </div>
+
+      <div id="next-container" class="action-container">
+        <button id="next-btn" class="std-btn">
+          <span class="btn-text">Lanjut</span>
+          <span style="font-size: 1.5rem">&#8594;</span>
+        </button>
+      </div>
+
+      <div id="options-container" class="action-container">
+        <button class="option-btn" id="opt-gak-tau">
+          <span>Gak tau</span><span>&#8594;</span>
+        </button>
+        <button class="option-btn" id="opt-tentu-dong">
+          <span>Tentu dong</span><span>&#8594;</span>
+        </button>
+      </div>
+
+      <div id="options-p16" class="action-container">
+        <button class="option-btn" id="opt-lanjut">
+          <span>Lanjut!</span><span>&#8594;</span>
+        </button>
+        <button class="option-btn" id="opt-cukup">
+          <span>Cukup</span><span>&#8594;</span>
+        </button>
+      </div>
+
+      <div id="options-p17" class="action-container">
+        <button class="option-btn" id="opt-bercanda">
+          <span>Bercanda</span><span>&#8594;</span>
+        </button>
+        <button class="option-btn" id="opt-iya">
+          <span>Iya</span><span>&#8594;</span>
+        </button>
+      </div>
+
+      <div id="options-p17-part2" class="action-container">
+        <button class="option-btn" id="opt-bercanda-2">
+          <span>Bercanda :P</span><span>&#8594;</span>
+        </button>
+        <button class="option-btn" id="opt-iya-2" style="position: relative">
+          <span>Iya!</span><span>&#8594;</span>
+        </button>
+      </div>
+
+      <div id="options-p18" class="action-container">
+        <div id="p18-container">
+          <button
+            class="option-btn"
+            id="opt-kembali"
+            style="
+              min-width: 320px;
+              justify-content: space-between;
+              padding: 12px 30px;
+            "
+          >
+            <span style="display: inline; text-align: left; line-height: 1.2"
+              >Kembali Ke<br />Halaman Utama</span
+            >
+            <span style="font-size: 2rem">&#8594;</span>
+          </button>
+          <div id="blocker-p18">Tunggu 4 Detik Lagi</div>
+        </div>
+      </div>
+
+      <div id="p13-container-wrapper" class="action-container">
+        <div id="p13-container">
+          <button class="option-btn" id="opt-p13-sudah">
+            <span>Sudah</span>
+            <span>&#8594;</span>
+          </button>
+          <div id="blocker-hijau">Belum Dapat Lanjut</div>
+          <div id="reminder-p13">Tunggu Admin Memberikan Izin</div>
+        </div>
+      </div>
+
+      <div id="reminder-box">
+        <p><span class="txt-large">Untuk Melihat suratnya,</span></p>
+        <p><span class="txt-large">Klik lingkaran nya</span></p>
+      </div>
+    </div>
+
+    <div id="letter-overlay">
+      <div id="progress-container"><div id="progress-bar"></div></div>
+      <button id="close-letter-btn">✖ Klik Jika sudah Membaca</button>
+      <div id="letter-scroll-area">
+        <img src="SuratTika.png" id="surat-img" alt="Isi Surat Tika" />
+      </div>
+    </div>
+
+    <div id="gift-overlay">
+      <div id="gift-wrapper">
+        <div id="gift-reminder">Pencet Tombol ✖ untuk Mengambil Hadiahnya</div>
+        <div id="gift-popup">
+          <button id="close-gift-btn">✖</button>
+          <h2>Selamat Kamu Mendapatkan</h2>
+          <img src="KucingHadiah.png" alt="Gantungan Kunci Kucing" />
+          <h3>Gantungan Kunci KucingBand</h3>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === LOGIKA PENGHUNGUNG PANEL ADMIN ===
+      // Mengatur Status User di panel admin Menjadi BERPINDAH (Hijau)
+      localStorage.setItem("statusUserMasuk", "BERPINDAH");
+
+      // Jika Admin Mengklik Tombol "Reset", paksa user ke Finale
+      setInterval(() => {
+        if (localStorage.getItem("forceRedirect") === "true") {
+          window.location.href = "LoadingMenuFinale.html";
+        }
+      }, 500);
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const chara = document.getElementById("character");
+        const dialog = document.getElementById("dialog-box");
+        const dialogText = document.getElementById("dialog-text");
+
+        const nextBtnContainer = document.getElementById("next-container");
+        const nextBtn = document.getElementById("next-btn");
+        const btnTextSpan = document.querySelector(".btn-text");
+
+        const optionsContainer = document.getElementById("options-container");
+        const btnGakTau = document.getElementById("opt-gak-tau");
+        const btnTentuDong = document.getElementById("opt-tentu-dong");
+
+        const optionsP16 = document.getElementById("options-p16");
+        const btnLanjut = document.getElementById("opt-lanjut");
+        const btnCukup = document.getElementById("opt-cukup");
+
+        const optionsP17 = document.getElementById("options-p17");
+        const btnBercanda = document.getElementById("opt-bercanda");
+        const btnIya = document.getElementById("opt-iya");
+
+        const optionsP17Part2 = document.getElementById("options-p17-part2");
+        const btnBercanda2 = document.getElementById("opt-bercanda-2");
+        const btnIya2 = document.getElementById("opt-iya-2");
+
+        const optionsP18 = document.getElementById("options-p18");
+        const btnKembali = document.getElementById("opt-kembali");
+        const blockerP18 = document.getElementById("blocker-p18");
+        const sideResponseP18 = document.getElementById("side-response-p18");
+
+        const p13ContainerWrapper = document.getElementById(
+          "p13-container-wrapper",
+        );
+        const btnP13Sudah = document.getElementById("opt-p13-sudah");
+        const blockerHijau = document.getElementById("blocker-hijau");
+        const reminderP13 = document.getElementById("reminder-p13");
+
+        const reminderBox = document.getElementById("reminder-box");
+        const letterHotspot = document.getElementById("letter-hotspot");
+        const letterOverlay = document.getElementById("letter-overlay");
+        const letterScrollArea = document.getElementById("letter-scroll-area");
+        const progressBar = document.getElementById("progress-bar");
+        const closeLetterBtn = document.getElementById("close-letter-btn");
+        const giftHotspot = document.getElementById("gift-hotspot");
+        const giftOverlay = document.getElementById("gift-overlay");
+        const closeGiftBtn = document.getElementById("close-gift-btn");
+
+        let storyStep = 1;
+        let pollingInterval = null;
+        let iyaEscapeCount = 0;
+        let p17Timeout = null;
+
+        window.addEventListener("unload", () => {
+          localStorage.removeItem("statusLanjutP16");
+          localStorage.removeItem("statusPemberianHadiah");
+        });
+
+        setTimeout(() => {
+          chara.classList.add("pos-center");
+        }, 100);
+        setTimeout(() => {
+          chara.classList.remove("pos-center");
+          chara.classList.add("pos-left");
+          setTimeout(() => {
+            dialog.classList.add("show");
+            nextBtnContainer.classList.add("show");
+          }, 800);
+        }, 2100);
+
+        nextBtn.addEventListener("click", () => {
+          if (storyStep === 1) {
+            dialog.classList.remove("show");
+            setTimeout(() => {
+              chara.src = "Satukine.png";
+              dialogText.innerHTML =
+                "Pertama Tama, Aku Ucapin<br><br>Selamat Ulang tahun Walau Sudah Lewat 3 Hari";
+              dialogText.className = "text-part2";
+              nextBtn.classList.add("with-text");
+              btnTextSpan.innerText = "Lanjut";
+              dialog.classList.add("show");
+              storyStep = 2;
+            }, 400);
+          } else if (storyStep === 2) {
+            dialog.classList.remove("show");
+            setTimeout(() => {
+              chara.src = "Ngobrolkine.png";
+              dialogText.innerHTML = "Admin Menitipkan 2 Hal";
+              dialogText.className = "text-part3";
+              btnTextSpan.innerText = "Apa Saja?";
+              dialog.classList.add("show");
+              storyStep = 3;
+            }, 400);
+          } else if (storyStep === 3) {
+            dialog.classList.remove("show");
+            setTimeout(() => {
+              chara.src = "Satukine.png";
+              dialogText.innerHTML = "Yang Pertama ada Surat";
+              dialogText.className = "text-part4";
+              btnTextSpan.innerText = "Oke";
+              dialog.classList.add("show");
+              storyStep = 4;
+            }, 400);
+          } else if (storyStep === 4) {
+            dialog.classList.remove("show");
+            setTimeout(() => {
+              chara.src = "Ngambilkine.png";
+              dialogText.innerHTML = "Tunggu, Biar Ku Ambilkan";
+              dialogText.className = "text-part5";
+              btnTextSpan.innerText = "Oke";
+              dialog.classList.add("show");
+              storyStep = 5;
+            }, 400);
+          } else if (storyStep === 5) {
+            dialog.classList.remove("show");
+            nextBtnContainer.classList.remove("show");
+            setTimeout(() => {
+              chara.classList.remove("pos-left");
+              chara.classList.add("pos-center");
+              chara.src = "Suratkine.png";
+              dialogText.innerHTML = "Ini dia!";
+              dialogText.className = "text-part6";
+              dialog.classList.add("shift-right");
+              reminderBox.classList.add("shift-right");
+              dialog.classList.add("show");
+              reminderBox.classList.add("show");
+              letterHotspot.classList.add("show");
+              storyStep = 6;
+            }, 400);
+          } else if (storyStep === 7) {
+            dialog.classList.remove("show");
+            setTimeout(() => {
+              chara.classList.remove("pos-center");
+              chara.classList.add("pos-left");
+              chara.src = "Ngobrolkine.png";
+              dialogText.innerHTML = "Selanjutnya, Kita ke Titipan keduanya";
+              dialogText.className = "text-part8";
+              btnTextSpan.innerText = "Apa Itu?";
+              dialog.classList.add("show");
+              storyStep = 8;
+            }, 400);
+          } else if (storyStep === 8) {
+            dialog.classList.remove("show");
+            nextBtnContainer.classList.remove("show");
+            setTimeout(() => {
+              chara.src = "Gagahkine.png";
+              dialogText.innerHTML =
+                "Udah Tau kan<br>Titipan Keduannya<br>berupa apa?";
+              dialogText.className = "text-part9";
+              dialog.classList.add("show");
+              optionsContainer.classList.add("show");
+              storyStep = 9;
+            }, 400);
+          } else if (storyStep === 10) {
+            dialog.classList.remove("show");
+            nextBtnContainer.classList.remove("show");
+            localStorage.setItem("statusPemberianHadiah", "READY");
+            setTimeout(() => {
+              chara.classList.remove("pos-left");
+              chara.classList.add("pos-center");
+              chara.src = "Hadiahkine.png";
+              dialogText.innerHTML = `<div class="dialog-split-1">Ini Dia Hadiahnya!</div><div class="dialog-split-2">Kira Kira Isinya apa ya?</div>`;
+              dialogText.className = "";
+              dialog.classList.add("shift-right");
+              reminderBox.innerHTML = `<p><span class="txt-large">klik Kotak</span></p><p><span class="txt-large">Untuk Membuka</span></p>`;
+              reminderBox.classList.add("shift-left");
+              dialog.classList.add("show");
+              reminderBox.classList.add("show");
+              giftHotspot.classList.add("show");
+              storyStep = 11;
+            }, 400);
+          } else if (storyStep === 14) {
+            dialog.classList.remove("show");
+            nextBtnContainer.classList.remove("show");
+            setTimeout(() => {
+              chara.src = "Uwukine.png";
+              dialogText.innerHTML =
+                "Aku Dapat<br>Kabar Website<br>ini dibuat<br>Untuk Kamu";
+              dialogText.className = "text-part3";
+              btnTextSpan.innerText = "Hmm";
+              nextBtnContainer.classList.add("show");
+              dialog.classList.add("show");
+              storyStep = 15;
+            }, 400);
+          } else if (storyStep === 15) {
+            dialog.classList.remove("show");
+            nextBtnContainer.classList.remove("show");
+            setTimeout(() => {
+              chara.src = "Gagahkine.png";
+              dialogText.innerHTML =
+                "Menurut Mu apakah<br>Dia Harus Melanjutkan<br>Proyek ini?";
+              dialogText.className = "text-part2";
+              optionsP16.classList.add("show");
+              dialog.classList.add("show");
+              storyStep = 16;
+            }, 400);
+          }
+        });
+
+        // --- Fungsi Trigger P18 ---
+        function masukPercakapan18() {
+          storyStep = 18;
+          chara.src = "Horekine.png";
+
+          dialog.classList.add("no-bg-style");
+          dialogText.innerHTML = `
+            <div class="dialog-bubble-p18">Yipiii</div>
+            <div class="dialog-bubble-p18">Admin Pasti Senang dengar ini</div>
+          `;
+
+          dialog.classList.add("show");
+          optionsP18.classList.add("show");
+
+          let detik = 4;
+          blockerP18.innerText = `Tunggu ${detik} Detik Lagi`;
+
+          const hitungMundur = setInterval(() => {
+            detik--;
+            if (detik > 0) {
+              blockerP18.innerText = `Tunggu ${detik} Detik Lagi`;
+            } else {
+              blockerP18.innerText = "Selesai";
+              clearInterval(hitungMundur);
+
+              setTimeout(() => {
+                blockerP18.style.transform = "translateY(150px) scale(0.8)";
+                blockerP18.style.opacity = "0";
+                setTimeout(() => {
+                  blockerP18.style.display = "none";
+                }, 600);
+              }, 500);
+            }
+          }, 1000);
+
+          setTimeout(() => {
+            sideResponseP18.classList.add("show");
+          }, 5000);
+        }
+
+        btnKembali.addEventListener("click", () => {
+          localStorage.setItem("statusBukaPercakapan", "BUKA"); // Tetap BUKA saat kembali
+          window.location.href = "MenuUtama.html";
+        });
+
+        // --- P16 Logic ---
+        btnLanjut.addEventListener("click", () => {
+          btnLanjut.classList.add("glow-green");
+          localStorage.setItem("statusLanjutP16", "LANJUT!");
+          setTimeout(() => {
+            optionsP16.classList.remove("show");
+            dialog.classList.remove("show");
+            btnLanjut.classList.remove("glow-green");
+            setTimeout(() => {
+              masukPercakapan18();
+            }, 400);
+          }, 400);
+        });
+
+        btnCukup.addEventListener("click", () => {
+          btnCukup.classList.add("glow-red");
+          localStorage.setItem("statusLanjutP16", "CUKUP");
+          setTimeout(() => {
+            optionsP16.classList.remove("show");
+            dialog.classList.remove("show");
+            btnCukup.classList.remove("glow-red");
+            setTimeout(() => {
+              chara.src = "Ngambekkine.png";
+              dialogText.innerHTML = "Yakin?";
+              dialogText.className = "text-part1";
+              optionsP17.classList.add("show");
+              dialog.classList.add("show");
+              storyStep = 17;
+            }, 400);
+          }, 400);
+        });
+
+        // --- P17 Logic ---
+        btnBercanda.addEventListener("click", () => {
+          btnBercanda.classList.add("glow-green");
+          setTimeout(() => {
+            optionsP17.classList.remove("show");
+            dialog.classList.remove("show");
+            btnBercanda.classList.remove("glow-green");
+            setTimeout(() => {
+              masukPercakapan18();
+            }, 400);
+          }, 400);
+        });
+
+        btnIya.addEventListener("click", () => {
+          btnIya.classList.add("glow-red");
+          setTimeout(() => {
+            optionsP17.classList.remove("show");
+            dialog.classList.remove("show");
+            btnIya.classList.remove("glow-red");
+            setTimeout(() => {
+              dialogText.innerHTML = "Apa Beneran<br>Yakin?";
+              dialogText.className = "text-part3";
+              optionsP17Part2.classList.add("show");
+              dialog.classList.add("show");
+            }, 400);
+          }, 400);
+        });
+
+        btnBercanda2.addEventListener("click", () => {
+          if (p17Timeout) clearTimeout(p17Timeout);
+          btnBercanda2.classList.add("glow-green");
+          setTimeout(() => {
+            optionsP17Part2.classList.remove("show");
+            dialog.classList.remove("show");
+            btnBercanda2.classList.remove("glow-green");
+            setTimeout(() => {
+              masukPercakapan18();
+            }, 400);
+          }, 400);
+        });
+
+        btnIya2.addEventListener("mouseenter", () => {
+          iyaEscapeCount++;
+          if (iyaEscapeCount === 1) {
+            btnIya2.style.transform = "translate(-120px, -150px)";
+          } else if (iyaEscapeCount === 2) {
+            btnIya2.style.transform = "translate(-350px, 80px)";
+          } else if (iyaEscapeCount === 3) {
+            btnIya2.style.transform = "translate(-200px, -280px)";
+          } else if (iyaEscapeCount >= 4) {
+            btnIya2.style.transform = "translate(100vw, -100vh) scale(0)";
+            btnIya2.style.opacity = "0";
+            btnIya2.style.pointerEvents = "none";
+            p17Timeout = setTimeout(() => {
+              btnBercanda2.click();
+            }, 5000);
+          }
+        });
+
+        // --- Utilities Lainya ---
+        function lanjutKePercakapan10() {
+          dialog.classList.remove("show");
+          optionsContainer.classList.remove("show");
+          setTimeout(() => {
+            chara.src = "Horekine.png";
+            dialogText.innerHTML =
+              "Sudah Pasti,<br>Titipan keduanya<br>Berupa Hadiah";
+            dialogText.className = "text-part10";
+            btnTextSpan.innerText = "Tentu Saja";
+            nextBtnContainer.classList.add("show");
+            dialog.classList.add("show");
+            storyStep = 10;
+          }, 400);
+        }
+        btnGakTau.addEventListener("click", lanjutKePercakapan10);
+        btnTentuDong.addEventListener("click", lanjutKePercakapan10);
+
+        letterHotspot.addEventListener("click", () => {
+          letterHotspot.classList.remove("show");
+          chara.src = "SuratKosongkine.png";
+          checkScrollProgress();
+          letterOverlay.classList.add("show");
+        });
+        function checkScrollProgress() {
+          let scrollTop = letterScrollArea.scrollTop;
+          let maxScroll =
+            letterScrollArea.scrollHeight - letterScrollArea.clientHeight;
+          let progress = maxScroll <= 0 ? 100 : (scrollTop / maxScroll) * 100;
+          progressBar.style.width = progress + "%";
+          if (progress >= 99) {
+            closeLetterBtn.classList.add("show");
+          }
+        }
+        letterScrollArea.addEventListener("scroll", checkScrollProgress);
+        closeLetterBtn.addEventListener("click", () => {
+          letterOverlay.classList.remove("show");
+          reminderBox.classList.remove("show");
+          dialog.classList.remove("show");
+          dialog.classList.remove("shift-right");
+          reminderBox.classList.remove("shift-right");
+          setTimeout(() => {
+            chara.src = "Gagahkine.png";
+            dialogText.innerHTML = "Sudah?";
+            dialogText.className = "text-part7";
+            btnTextSpan.innerText = "Sudah Dong";
+            nextBtnContainer.classList.add("show");
+            dialog.classList.add("show");
+            storyStep = 7;
+          }, 500);
+        });
+
+        giftHotspot.addEventListener("click", () => {
+          giftHotspot.classList.remove("show");
+          chara.src = "Kosongkine.png";
+          giftOverlay.classList.add("show");
+          storyStep = 12;
+        });
+
+        closeGiftBtn.addEventListener("click", () => {
+          giftOverlay.classList.remove("show");
+          reminderBox.classList.remove("show");
+          dialog.classList.remove("show");
+          dialog.classList.remove("shift-right");
+          reminderBox.classList.remove("shift-left");
+          reminderBox.innerHTML = "";
+          setTimeout(() => {
+            storyStep = 13;
+            chara.src = "Uwukine.png";
+            dialogText.innerHTML =
+              "Kayaknya Admin Sudah<br>Nunggu Di Depan Rumah Tuh";
+            dialogText.className = "text-part2";
+            chara.classList.remove("pos-center");
+            chara.classList.add("pos-left");
+            dialog.classList.add("show");
+            p13ContainerWrapper.classList.add("show");
+            memulaiPemantauanIzin();
+          }, 500);
+        });
+
+        blockerHijau.addEventListener("click", () => {
+          reminderP13.classList.add("show");
+          setTimeout(() => {
+            reminderP13.classList.remove("show");
+          }, 2000);
+        });
+        btnP13Sudah.addEventListener("click", () => {
+          clearInterval(pollingInterval);
+          dialog.classList.remove("show");
+          p13ContainerWrapper.classList.remove("show");
+          setTimeout(() => {
+            chara.src = "Satukine.png";
+            dialogText.innerHTML =
+              "Oke, Itu Semua<br>Yang admin<br>Titip Ke Aku";
+            dialogText.className = "text-part3";
+            btnTextSpan.innerText = "Oke";
+            nextBtnContainer.classList.add("show");
+            dialog.classList.add("show");
+            storyStep = 14;
+          }, 400);
+        });
+
+        function memulaiPemantauanIzin() {
+          pollingInterval = setInterval(() => {
+            const statusIzin = localStorage.getItem("izinLanjutHadiah");
+            if (statusIzin === "true") {
+              blockerHijau.classList.add("hidden");
+            } else {
+              blockerHijau.classList.remove("hidden");
+            }
+          }, 500);
+        }
+      });
+    </script>
+  </body>
+</html>
